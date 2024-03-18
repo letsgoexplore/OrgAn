@@ -1,0 +1,28 @@
+
+#parallel ssh 
+#server_list has list of ip addresses 
+#ubuntu- here is the username 
+pssh -h server_list -l ubuntu -i -x "-oStrictHostKeyChecking=no  -i OmTrial1.pem" 'date' 
+
+
+#different command when using mpssh - need to edit ~/.ssh/config file to be able to use pem files 
+mpssh -f server_list -u ubuntu -s '/home/ubuntu/go/bin/tendermint unsafe_reset_all'
+
+~/.ssh/config
+
+Example:
+Host 3.22.158.193
+    StrictHostKeyChecking no
+    IdentityFile /Users/easwarvivek/Desktop/KODE/keys/OmTrial1.pem
+
+mpssh -f server_names -u ubuntu -s 'date'
+
+curl -s localhost:26657/status
+
+curl -s 'localhost:26657/broadcast_tx_commit?tx="abcd"'
+
+curl -s 'localhost:26657/abci_query?data="abcd"'
+
+aws ec2 describe-instances   --filter "Name=instance-state-name,Values=running"   --query "Reservations[*].Instances[*].[Tags[?Key=='Name'].Value|[0],             PublicIpAddress]"   --output text >> aws_list2.csv
+
+pslurp -h server_list -l ubuntu -x "-i OmTrial1.pem" -L ./timing/ /home/ubuntu/KODE/DKG/sss_dkg/tmp/sss_dkgtiming_n_50.csv sss_dkgtiming_n_50.csv 

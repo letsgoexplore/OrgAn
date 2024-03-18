@@ -1,0 +1,1 @@
+cd newOrgan/nodes; python3 client.py -i 8 -c 10

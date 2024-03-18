@@ -1,0 +1,10 @@
+cd /home/ubuntu/newOrgan/nodes; python3 client.py -i 0 -c 100 & 
+cd /home/ubuntu/newOrgan/nodes; python3 client.py -i 1 -c 100 & 
+cd /home/ubuntu/newOrgan/nodes; python3 client.py -i 2 -c 100 & 
+cd /home/ubuntu/newOrgan/nodes; python3 client.py -i 3 -c 100 & 
+cd /home/ubuntu/newOrgan/nodes; python3 client.py -i 4 -c 100 & 
+cd /home/ubuntu/newOrgan/nodes; python3 client.py -i 5 -c 100 & 
+cd /home/ubuntu/newOrgan/nodes; python3 client.py -i 6 -c 100 & 
+cd /home/ubuntu/newOrgan/nodes; python3 client.py -i 7 -c 100 & 
+cd /home/ubuntu/newOrgan/nodes; python3 client.py -i 8 -c 100 & 
+cd /home/ubuntu/newOrgan/nodes; python3 client.py -i 9 -c 100 & 
