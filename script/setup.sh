@@ -39,7 +39,6 @@ for d in *; do
   for ((i = 0; i <= $d; i++))
   do
     scp -r -i ~/organ.pem ../config ubuntu@${IPS[$i]}:~/organ/script/ &
-    scp -r -i ~/organ.pem ../config ubuntu@${IPS[$i]}:~/organ/script/ &
   done
 done
 
