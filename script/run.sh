@@ -11,13 +11,13 @@ wait
 
 cd ./script/config/
 for d in *; do
-  for c in $d/*; do
-    bash ../run_server.sh ${IPS[0]} $d $c &
-    for ((i = 1; i <= $d; i++)); do
-      bash ../run_client.sh ${IPS[$i]} $d $c $(expr $i - 1) &
-    done
-    wait
+  echo $d
+  c="$d/rprf1024.json"
+  bash ../run_server.sh ${IPS[0]} $d $c &
+  for ((i = 1; i <= $d; i++)); do
+    bash ../run_client.sh ${IPS[$i]} $d $c $(expr $i - 1) &
   done
+  wait
 done
 cd ../../
 
