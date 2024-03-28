@@ -4,49 +4,20 @@ while IFS= read -r line; do
   IPS+=($line)
 done < $1
 
-UIPS=($(echo "${IPS[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
-
-echo ${IPS[*]}
-
-echo ${UIPS[*]} > ./log/uip.txt
-
-bash ./script/get_pvt_ip.sh $1 > ./log/pvt.txt
-
-while IFS= read -r line; do
-  PIPS+=($line)
-done < ./log/pvt.txt
-
-# Correct the config
-cd ./script/config/
-for d in *; do
-  for c in $d/*; do
-    sed -i 's/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'/${PIPS[0]}/ $c 
-  done
-done
-
-# Install the program
-for ((i = 0; i <= $(expr ${#UIPS[@]} - 1); i++)); do
-  # Upload new SSH config. Enable if needed.
-  # scp -i ~/organ.pem script/sshd_config ubuntu@${UIPS[$i]}:~/sshd_config &
-  ssh -t -i ~/organ.pem ubuntu@${UIPS[$i]} 'bash -ls' < script/aws.sh &
-done
-
-wait
+UIPS=($(echo "${IPS[@]}" | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' '))
 
 # Upload the config
 cd ./script/config/
-for d in *; do
-  for ((i = 0; i <= $d; i++))
-  do
-    scp -r -i ~/organ.pem ../config ubuntu@${IPS[$i]}:~/organ/script/ &
-  done
+for ((i = 0; i <= $(expr ${#UIPS[@]} - 1); i++)); do
+    scp -r -i ~/organ.pem ../config ubuntu@${UIPS[$i]}:~/organ/script/ &
 done
+cd ../..
 
 # Generate the shares
 cd ./script/config/
 for d in *; do
   mkdir -p ../../log/$d
-  RUST_LOG=info ../../target/release/organ config ./$d/oprf58.json ../../log/$d &
+  RUST_LOG=info ../../target/release/organ config ./$d/rprf1024.json ../../log/$d &
 done
 cd ../../
 
