@@ -32,7 +32,7 @@
 #PermitRootLogin prohibit-password
 #StrictModes yes
 #MaxAuthTries 6
-MaxSessions 100
+MaxSessions 200
 
 #PubkeyAuthentication yes
 
@@ -100,7 +100,7 @@ PrintMotd no
 #ClientAliveCountMax 3
 #UseDNS no
 #PidFile /var/run/sshd.pid
-MaxStartups 100:30:100
+MaxStartups 200:30:250
 #PermitTunnel no
 #ChrootDirectory none
 #VersionAddendum none
