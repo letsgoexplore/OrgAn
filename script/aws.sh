@@ -1,5 +1,6 @@
 rm -rf organ
-git clone https://github.com/zhtluo/organ.git
+# git clone https://github.com/zhtluo/organ.git
+git clone https://github.com/letsgoexplore/OrgAn.git
 cd organ
 git pull
 
