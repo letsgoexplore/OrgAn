@@ -124,7 +124,7 @@ pub fn default_base_params() -> ProtocolParams {
             root: Integer::from_str_radix("2418184924512328812370262861594", 10).unwrap(),
             scale: Integer::from(2).pow(96),
         },
-        vector_len: 8092,
+        vector_len: 8192,
         bits: 64,
         group_nid: Nid::SECP256K1.as_raw(),
         group: Some(EcGroup::from_curve_name(Nid::SECP256K1).unwrap()),
