@@ -58,6 +58,7 @@ done
 
 sleep 10
 cd ./script/config/
+# CHANGE: You can modify your number here
 for d in "300" "500"; do
   scp_with_retry ../../log/$d/bits_64_relay.txt ubuntu@${IPS[0]}:~/organ/log/$d/ &
   scp_with_retry ../../log/$d/bits_226_relay.txt ubuntu@${IPS[0]}:~/organ/log/$d/ &

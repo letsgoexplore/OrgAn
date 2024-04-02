@@ -12,6 +12,7 @@ done
 wait
 
 cd ./script/config/
+# CHANGE: You can modify your number here
 for d in "300" "500" ; do
   echo $d
   for c in "$d/rprf1024.json" "$d/rnoprf1024.json" "$d/onoprf1024.json"; do

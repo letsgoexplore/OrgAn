@@ -5,6 +5,8 @@ while IFS= read -r line; do
 done < $1
 
 UIPS=($(echo "${IPS[@]}" | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' '))
+# CHANGE: You can modify your number here
+TEST_SET=("50" "100" "150" "200")
 
 # Upload the config
 cd ./script/config/
@@ -15,7 +17,7 @@ cd ../..
 
 # Generate the shares
 cd ./script/config/
-for d in *; do
+for d in "${TEST_SET[@]}"; do
   mkdir -p ../../log/$d
   RUST_LOG=info ../../target/release/organ config ./$d/rprf1024.json ../../log/$d &
 done
