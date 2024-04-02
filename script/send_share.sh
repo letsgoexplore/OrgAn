@@ -11,7 +11,7 @@ done
 UIPS=($(echo "${IPS[@]}" | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' '))
 sleep 3
 
-MAX_RETRIES=10
+MAX_RETRIES=3
 scp_with_retry() {
   local retries=0
   local src_file=$1
@@ -22,7 +22,7 @@ scp_with_retry() {
   while [[ $retries -lt $MAX_RETRIES ]]; do
     if scp -i ~/organ.pem "$src_file" "$dest"; then
       # Check the size of the destination file
-      dest_size=$(ssh -i ~/organ.pem "${dest%%:*}" "stat -c %s ${dest##*:}")
+      dest_size=$(ssh -i ~/organ.pem "${dest%%:*}" "stat -c %s ${dest##*:}"/$(basename "$src_file"))
       if [[ "$src_size" -eq "$dest_size" ]]; then
         echo "File $src_file transferred successfully."
         break
