@@ -5,116 +5,96 @@ The protocol follows a client/relay/server model, where the setup server provide
 
 The clients use Base round for slot selection and Bulk round to forward their messages in the chosen slots. Each client computes randomness to mask the slot messages as a polynomial ring element using a almost key-homomorphic PRF output. The relay collects all the messages from all the clients in a Base round, computes the Newton's sum equation system and solves it to obtain a random permutation of client input values. This permutation is used to select slots in the Bulk round. Clients choose a 64 bit random value for slot selection in the Base round. In the Bulk round, a client can forward 226 bits of message per allotted slot.  
 
-## Installation
+If you want to view the original ReadMe, please forward to https://github.com/zhtluo/organ.git. Hear, we mainly focus on how to do evaluation.
+
+## 0 Declaration of Change with original
+
+### 0.1 Previous problems
+
+There are some inconvenience of previous code:
+
+- Explanation not clear enough
+
+- No time for ssh confimation, if first time connect with aws server
+
+Here, we want to measure client scale more than 200, and we encounter several problem:
+
+- Previous ssh session is not enough
+
+- Some file cannot be send in one time
+
+### 0.2 Change
+
+- (Add) first_setup.sh : give time for ssh confirmation, save duplicate caluculation of private ip
+
+- (Add) send_shares.sh : resend the file
+
+- (Change) setup.sh : add resend mechanism
+
+- (Style) more comment
+
+## 1 Installation
 
 To test out the repo, either use the package from Docker, or install all dependencies manually.
 
-### Pull from Docker
+### 1.1 Pull from Docker
 
 ```
 docker pull ghcr.io/zhtluo/organ:latest
 docker run -it ghcr.io/zhtluo/organ:latest 
 ```
 
-### Manual installation
+## 2 Steps to repeat the benchmarks reported in the paper
 
-#### Rust
+### 2.1 What can you measure?
 
-If you do not have Rust (`https://www.rust-lang.org/`) installed, you can install it via:
+You can measure all client num(64, 111, 123 ...)
 
-```
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-source $HOME/.cargo/env
-```
+### 2.2 High-level Procedure
 
-#### Flint
+1. change config (client num you want to measure) in `script/config` and the shell script in `script`(they are noted with "CHANGE", you can search for it)
 
-##### Arch Linux
+2. update `script/ip.txt` and `organ,pem`
 
-Use `pacman` to install `libflint`:
+3. check `script/sshd_config` to ensure ssh config
 
-```
-sudo pacman -Sy flint --noconfirm
-```
+4. `bash ./script/first-setup.sh ./script/ip.txt` to setup params
 
-##### Ubuntu
+5. `bash ./script/setup.sh ./script/ip.txt` to generate shares and send to aws server
 
-Build from source with the following script snippet:
+6. (optional) `bash ./script/send_share.sh ./script/ip.txt` in case some files is not sent successfully
 
-```
-sudo apt update
-sudo apt install build-essential libgmp-dev libmpfr-dev m4
-wget https://www.flintlib.org/flint-2.8.4.tar.gz
-tar -xf flint-2.8.4.tar.gz
-cd flint-2.8.4/
-./configure
-sudo make install
-sudo ldconfig
-```
+7. `bash ./script/run.sh ./script/ip.txt` to run the test, and send back the result
 
-#### Repo
+8. `./script/extract.sh` to culculate the outcome
 
-- Clone the repository using `git clone https://github.com/zhtluo/organ.git`.
+### 2.3 Details
 
-- Change directory with `cd organ` and use `cargo build --release` to build the prototype.
+Details for the above "High-level Procedure":
 
-## Local setup and test
+1. You can search for `CHANGE`, where should be like:
 
-Use `bash ./script_local/test.sh` to start a test-run.
-
-The default local test run launches one setup server which generates client secret shares and outputs them to `./log/local`. Then the specified number of processes (1 relay + 5 clients by default) are launched to simulate the exchange of the Base round and the Bulk round messages among them. Different configurations for different message lengths and parameters can be used to measure the performance. 
-
-## Configuration and output logs
-
-For the local tests, the protocol configuration is specified in `./script_local/config`, and the log, including timestamps on each round, is dumped to `./log/local/<setting name>/`.
-
-- The log may be analyzed in any manner. For simplicity a code snippet is provided under `./script_local/extract.sh`.
-
-Running this script with `./script_local/extract.sh` will yield a result like:
-
-```
-Optimal round trip time (in seconds, base round and bulk round respectively):
-optimal_rtt_no_prf_preprocessing_58Bmessage.json
-0.007 0.057
-
-optimal_rtt_with_prf_preprocessing_1024Bmessage.json
-0.015 0.015
-
-optimal_rtt_with_prf_preprocessing_58Bmessage.json
-0.015 0.014
-
-Round trip time (in seconds, base round and bulk round respectively):
-rtt_no_prf_preprocessing_58Bmessage.json
-0.054 0.095
-
-rtt_with_prf_preprocessing_1024Bmessage.json
-0.018 0.01
-
-rtt_with_prf_preprocessing_58Bmessage.json
-0.013 0.01
-
-Average round time (in seconds, both base and bulk round):
-avg_rtt_no_prf_preprocessing_1024Bmessage.json
-0.291
-
-avg_rtt_with_prf_preprocessing_1024Bmessage.json
-0.048
+```shell
+# script/setup.sh L8
+# CHANGE: You can modify your number here
+TEST_SET=("50" "100" "150" "200")
 ```
 
-For different experiments, we use different configuration files, specified under `script_local/config/<no of clients>/`
-The name of each config file explains the actual setting the experiment is performed under.
+Then you can change the client list you want to test.
 
-## Steps to repeat the benchmarks reported in the paper
+2.  Set up AWS and add the node IPs into a `<Your IP address filename.txt>` file, one per line with the first IP being the IP of the relay node.
+    
+  - Reminder from Jason: if you want to use 5 aws ec2 to simulate 100 client, remember to fill 100 ip with replicate into `<Your IP address filename.txt>`.
+  
+  - The scripts (eg: `run.sh`, `setup.sh`) from the folder `scripts` use an `~/organ.pem` as the SSH keypair to access the AWS machines. Modify it to reflect your keys.
 
-- Set up AWS and add the node IPs into a `<Your IP address filename.txt>` file, one per line with the first IP being the IP of the relay node.
+3.  You may need to modify `MaxSessions 200` and `MaxStartups 200:30:250`.
 
-- The scripts (eg: `run.sh`, `setup.sh`) from the folder `scripts` use an `~/organ.pem` as the SSH keypair to access the AWS machines. Modify it to reflect your keys.
+5.  Run `bash ./script/setup.sh <Your IP address filename.txt>` to build the prototype on each of the machines. Note you may have to modify `./script/get_pvt_ip.sh` to recognize your subnet if your private network address is different from `172.31.*.*`.
 
-- Run `bash ./script/setup.sh <Your IP address filename.txt>` to build the prototype on each of the machines. Note you may have to modify `./script/get_pvt_ip.sh` to recognize your subnet if your private network address is different from `172.31.*.*`.
+7.  Run `bash ./script/run.sh <Your IP address filename.txt>` to run all the tests and fetch the log under `./log/`.
 
-- Run `bash ./script/run.sh <Your IP address filename.txt>` to run all the tests and fetch the log under `./log/`.
-
-- You may analyze the log anyway you want. For simplicity a code snippet is provided under `./script/extract.sh`.
+8.  You may analyze the log anyway you want. For simplicity a code snippet is provided under `./script/extract.sh`.
 
 ## Further details on the options available for the protocol configuration. 
 
